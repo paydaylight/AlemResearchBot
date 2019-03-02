@@ -33,11 +33,13 @@ def text(bot, update):
 
     return TEXT
 
+
 def cancel(bot, update):
     user = update.message.from_user
     update.message.reply_text('Hope we talk again soon!',  reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
+
 
 def help_command(bot, update):
     update.message.reply_text(get_commands())
@@ -69,14 +71,14 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            CATEGORY: [MessageHandler(Filters.text, category)],
+            CATEGORY: [MessageHandler(Filters.text, category),
+                       CommandHandler('help', help_command)],
             LOCATION: [MessageHandler(Filters.text, location)],
             TEXT: [MessageHandler(Filters.text, text)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
     dp.add_handler(conv_handler)
-    dp.add_handler(CommandHandler('help', help_command))
 
     updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
     updater.bot.set_webhook("https://alemresearchbot.herokuapp.com/" + TOKEN)
