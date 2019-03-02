@@ -67,7 +67,7 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler['start', start]],
+        entry_points=[CommandHandler('start', start)],
         states={
             CATEGORY: [MessageHandler(Filters.text, category)],
             LOCATION: [MessageHandler(Filters.text, location)],
