@@ -16,20 +16,22 @@ CATEGORY, LOCATION, TEXT = range(3)
 
 def start(bot, update):
     update.message.reply_text('Hi, I will help you out, please, select a category:',
-                              reply_markup=ReplyKeyboardMarkup(get_categories(), one_time_keyboard=True))
+                              reply_markup={'keyboard': get_categories(), 'resize_keyboard': True,
+                                            'one_time_keyboard': True})
     return CATEGORY
 
 
 def category(bot, update):
     #user = update.message.from_user
-    update.message.reply_text('So category is, now please select location:',
-                              reply_markup={'keyboard': get_locations(), 'resize_keyboard': True, 'one_time_keyboard': True})
+    update.message.reply_text(f'So category is {update.message.text}, now please select location:',
+                              reply_markup={'keyboard': get_locations(), 'resize_keyboard': True,
+                                            'one_time_keyboard': True})
     return LOCATION
 
 
 def location(bot, update):
     #user = update.message.from_user
-    update.message.reply_text('So location is %s, now now you can send me some notes!', update.message.text,
+    update.message.reply_text(f'So location is {update.message.text}, now you can send me some notes!',
                               reply_markup=ReplyKeyboardRemove())
     return TEXT
 
