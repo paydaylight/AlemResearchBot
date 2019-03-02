@@ -1,15 +1,22 @@
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler)
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
-import os
+import os, logging
 
 commands = {'/help': 'List of available commands',
             '/start': 'Command to initiate conversation with bot'}
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+
+logger = logging.getLogger(__name__)
+
 CATEGORY, LOCATION, TEXT = range(3)
 
 
 def start(bot, update):
     update.message.reply_text('Hi, I will help you out, please, select a category:',
-                              reply_markup=ReplyKeyboardMarkup(get_categories, one_time_keyboard=True))
+                              reply_markup=ReplyKeyboardMarkup(get_categories(), one_time_keyboard=True))
     return CATEGORY
 
 
@@ -62,6 +69,10 @@ def get_locations():
     return lst
 
 
+def error(bot, update, error):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, error)
+
 def main():
     TOKEN = os.environ['TELEGRAM_TOKEN']
     PORT = int(os.environ.get('PORT', '8443'))
@@ -78,7 +89,9 @@ def main():
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
+
     dp.add_handler(conv_handler)
+    dp.add_error_handler(error)
 
     updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
     updater.bot.set_webhook("https://alemresearchbot.herokuapp.com/" + TOKEN)
