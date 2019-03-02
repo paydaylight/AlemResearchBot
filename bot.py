@@ -1,13 +1,43 @@
-from telegram.ext import (Updater, CommandHandler)
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler)
+from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 import os
 
 commands = {'/help': 'List of available commands',
             '/start': 'Command to initiate conversation with bot'}
+CATEGORY, LOCATION, TEXT = range(3)
 
 
 def start(bot, update):
-    update.message.reply_text('Hello')
+    update.message.reply_text('Hi, I will help you out, please, select a category:',
+                              reply_markup=ReplyKeyboardMarkup(get_categories, one_time_keyboard=True))
+    return CATEGORY
 
+
+def category(bot, update):
+    user = update.message.from_user
+    update.message.reply_text('So category is %s, now please select location:', user.message.text,
+                              reply_markup=ReplyKeyboardMarkup(get_locations(), one_time_keyboard=True))
+    return LOCATION
+
+
+def location(bot, update):
+    user = update.message.from_user
+    update.message.reply_text('So location is %s, now now you can send me some notes!', user.message.text,
+                              reply_markup=ReplyKeyboardRemove())
+    return TEXT
+
+
+def text(bot, update):
+    user = update.message.from_user
+    update.message.reply_text('Thanks, I\'ll write it down!')
+
+    return TEXT
+
+def cancel(bot, update):
+    user = update.message.from_user
+    update.message.reply_text('Hope we talk again soon!',  reply_markup=ReplyKeyboardRemove())
+
+    return ConversationHandler.END
 
 def help_command(bot, update):
     update.message.reply_text(get_commands())
@@ -20,12 +50,32 @@ def get_commands():
     return string
 
 
+def get_categories():
+    lst = [['Category 1', 'Category 2']]
+    return lst
+
+
+def get_locations():
+    lst = [['Almaty', 'Astana']]
+    return lst
+
+
 def main():
     TOKEN = os.environ['TELEGRAM_TOKEN']
     PORT = int(os.environ.get('PORT', '8443'))
     updater = Updater(TOKEN)
     dp = updater.dispatcher
 
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler['start', start]],
+        states={
+            CATEGORY: [MessageHandler(Filters.text, category)],
+            LOCATION: [MessageHandler(Filters.text, location)],
+            TEXT: [MessageHandler(Filters.text, text)]
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+    dp.add_handler(conv_handler)
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', help_command))
 
