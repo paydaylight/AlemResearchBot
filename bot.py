@@ -23,7 +23,7 @@ def start(bot, update):
 def category(bot, update):
     #user = update.message.from_user
     update.message.reply_text('So category is %s, now please select location:', update.message.text,
-                              reply_markup=ReplyKeyboardMarkup(get_locations(), one_time_keyboard=True))
+                              reply_markup={'keyboard': get_locations(), 'resize_keyboard': True, 'one_time_keyboard': True})
     return LOCATION
 
 
