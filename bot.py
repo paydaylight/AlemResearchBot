@@ -21,28 +21,28 @@ def start(bot, update):
 
 
 def category(bot, update):
-    user = update.message.from_user
-    update.message.reply_text('So category is %s, now please select location:', user.message.text,
+    #user = update.message.from_user
+    update.message.reply_text('So category is %s, now please select location:', update.message.text,
                               reply_markup=ReplyKeyboardMarkup(get_locations(), one_time_keyboard=True))
     return LOCATION
 
 
 def location(bot, update):
-    user = update.message.from_user
-    update.message.reply_text('So location is %s, now now you can send me some notes!', user.message.text,
+    #user = update.message.from_user
+    update.message.reply_text('So location is %s, now now you can send me some notes!', update.message.text,
                               reply_markup=ReplyKeyboardRemove())
     return TEXT
 
 
 def text(bot, update):
-    user = update.message.from_user
+    #user = update.message.from_user
     update.message.reply_text('Thanks, I\'ll write it down!')
 
     return TEXT
 
 
 def cancel(bot, update):
-    user = update.message.from_user
+    #user = update.message.from_user
     update.message.reply_text('Hope we talk again soon!',  reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
