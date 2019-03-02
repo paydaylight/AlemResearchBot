@@ -60,7 +60,7 @@ def get_commands():
 
 
 def get_categories():
-    lst = [['Category 1', 'Category 2']]
+    lst = [['Category1', 'Category2']]
     return lst
 
 
