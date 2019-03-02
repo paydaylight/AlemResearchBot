@@ -76,7 +76,6 @@ def main():
         fallbacks=[CommandHandler('cancel', cancel)]
     )
     dp.add_handler(conv_handler)
-    dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', help_command))
 
     updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
