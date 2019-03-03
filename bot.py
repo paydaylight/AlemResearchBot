@@ -54,13 +54,13 @@ def cancel(bot, update):
     return ConversationHandler.END
 
 
-def save_to_db(username, category, text, location):
+def save_to_db(username, cat, txt, loc):
     try:
         conn = psycopg2.connect(get_db_url(), sslmode='require')
         c = conn.cursor()
-        entry = (category, location, text, username)
+        entry = (username, cat, txt, loc)
         logger.info(entry)
-        c.execute('INSERT INTO users VALUES (%s, %s, %s, %s)', entry)
+        c.execute('INSERT INTO user(username, category, text, location) VALUES (%s, %s, %s, %s)', entry)
         conn.commit()
     finally:
         c.close()
