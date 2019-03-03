@@ -57,6 +57,7 @@ def cancel(bot, update):
 def save_to_db(username, cat, txt, loc):
     try:
         conn = psycopg2.connect(get_db_url(), sslmode='require')
+        conn.set_client_encoding('UTF8')
         c = conn.cursor()
         entry = (username, cat, txt, loc)
         logger.info(entry)
