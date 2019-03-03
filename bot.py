@@ -1,6 +1,7 @@
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler)
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 import os, logging
+import psycopg2, redis
 
 commands = {'/help': 'List of available commands',
             '/start': 'Command to initiate conversation with bot'}
@@ -10,11 +11,13 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+r = redis.Redis(host='ec2-63-35-89-186.eu-west-1.compute.amazonaws.com', port=12709, db=0)
 
 CATEGORY, LOCATION, TEXT = range(3)
 
 
 def start(bot, update):
+    r.set('username', update.message.from_user.first_name)
     update.message.reply_text('Hi, I will help you out, please, select a category:',
                               reply_markup={'keyboard': get_categories(), 'resize_keyboard': True,
                                             'one_time_keyboard': True})
@@ -23,6 +26,7 @@ def start(bot, update):
 
 def category(bot, update):
     #user = update.message.from_user
+    r.set('category', update.message.text)
     update.message.reply_text(f'So category is {update.message.text}, now please select location:',
                               reply_markup={'keyboard': get_locations(), 'resize_keyboard': True,
                                             'one_time_keyboard': True})
@@ -30,6 +34,7 @@ def category(bot, update):
 
 
 def location(bot, update):
+    r.set('location', update.message.text)
     #user = update.message.from_user
     update.message.reply_text(f'So location is {update.message.text}, now you can send me some notes!',
                               reply_markup=ReplyKeyboardRemove())
@@ -37,9 +42,10 @@ def location(bot, update):
 
 
 def text(bot, update):
+    r.set('text', update.message.text)
     #user = update.message.from_user
     update.message.reply_text('Thanks, I\'ll write it down!')
-
+    save_to_db(r.get('username'), r.get('category'), r.get('text'), r.get('location'))
     return TEXT
 
 
@@ -48,6 +54,18 @@ def cancel(bot, update):
     update.message.reply_text('Hope we talk again soon!',  reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
+
+
+def save_to_db(username, category, text, location):
+    try:
+        conn = psycopg2.connect(get_db_url(), sslmode='require')
+        c = conn.cursor()
+        entry = (category, location, text, username)
+        c.execute('INSERT INTO users VALUES (%s, %s, %s, %s)', entry)
+        conn.commit()
+    finally:
+        c.close()
+        conn.close()
 
 
 def help_command(bot, update):
@@ -62,7 +80,7 @@ def get_commands():
 
 
 def get_categories():
-    lst = [['Category1', 'Category2']]
+    lst = [['Category 1', 'Category 2']]
     return lst
 
 
@@ -74,6 +92,11 @@ def get_locations():
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
+
+
+def get_db_url():
+    return os.environ['DATABASE_URL']
+
 
 def main():
     TOKEN = os.environ['TELEGRAM_TOKEN']

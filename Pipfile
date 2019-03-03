@@ -4,9 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-python-telegram-bot = "*"
+pytelegrambotapi = "*"
+psycopg2 = "*"
+redis = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.6.6"
+python_version = "3.6"
