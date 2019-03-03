@@ -60,7 +60,7 @@ def save_to_db(username, cat, txt, loc):
         c = conn.cursor()
         entry = (username, cat, txt, loc)
         logger.info(entry)
-        c.execute('INSERT INTO user(username, category, text, location) VALUES (%s, %s, %s, %s)', entry)
+        c.execute('INSERT INTO users(username, category, text, location) VALUES (%s, %s, %s, %s)', entry)
         conn.commit()
     finally:
         c.close()
