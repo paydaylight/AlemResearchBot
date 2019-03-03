@@ -11,7 +11,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-r = redis.Redis(host='ec2-63-35-89-186.eu-west-1.compute.amazonaws.com', port=12709, db=0)
+r = redis.from_url(os.environ.get("REDIS_URL"))
 
 CATEGORY, LOCATION, TEXT = range(3)
 
