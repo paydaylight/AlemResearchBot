@@ -18,8 +18,9 @@ CATEGORY, LOCATION, TEXT = range(3)
 
 
 def start(bot, update):
-    r.set('username', update.message.from_user.first_name)
-    update.message.reply_text('Hi, I will help you out, please, select a category:',
+    r.set('username', update.message.from_user.username)
+    update.message.reply_text('Greetings, I will help you out with reports, first, select a category: \n'
+                              'If you made something wrong type /cancel.',
                               reply_markup={'keyboard': get_categories(), 'resize_keyboard': True,
                                             'one_time_keyboard': True})
     return CATEGORY
@@ -27,7 +28,7 @@ def start(bot, update):
 
 def category(bot, update):
     r.set('category', update.message.text)
-    update.message.reply_text(f'So category is {update.message.text}, now please select location:',
+    update.message.reply_text(f'You selected \"{update.message.text}\", now please select location of your report:',
                               reply_markup={'keyboard': get_locations(), 'resize_keyboard': True,
                                             'one_time_keyboard': True})
     return LOCATION
@@ -35,7 +36,7 @@ def category(bot, update):
 
 def location(bot, update):
     r.set('location', update.message.text)
-    update.message.reply_text(f'So location is {update.message.text}, now you can send me some notes!',
+    update.message.reply_text(f'You selected {update.message.text}, now you can send your report',
                               reply_markup=ReplyKeyboardRemove())
     return TEXT
 
@@ -43,13 +44,13 @@ def location(bot, update):
 def text(bot, update):
     r.set('text', update.message.text)
     save_to_db(r.get('username'), r.get('category'), r.get('text'), r.get('location'))
-    update.message.reply_text('Thanks, I\'ll write it down!')
+    update.message.reply_text('Report saved! you may continue sending me reports or type /cancel to exit')
 
     return TEXT
 
 
 def cancel(bot, update):
-    update.message.reply_text('Hope we talk again soon!',  reply_markup=ReplyKeyboardRemove())
+    update.message.reply_text('Hope we talk again soon! Press /start to begin',  reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
 
