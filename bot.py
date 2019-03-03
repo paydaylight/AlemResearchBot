@@ -1,7 +1,7 @@
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler)
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 import os, logging
-import psycopg2, redis, time
+import psycopg2, redis, datetime
 
 commands = {'/help': 'List of available commands',
             '/start': 'Command to initiate conversation with bot'}
@@ -61,7 +61,7 @@ def save_to_db(username, cat, txt, loc): #//add timestamp
         conn = psycopg2.connect(get_db_url(), sslmode='require')
         conn.set_client_encoding('UTF8')
         c = conn.cursor()
-        entry = ("@"+username.decode("utf-8"), cat.decode("utf-8"), txt.decode("utf-8"), loc.decode("utf-8"), time.time())
+        entry = ("@"+username.decode("utf-8"), cat.decode("utf-8"), txt.decode("utf-8"), loc.decode("utf-8"), datetime.datetime.now())
         logger.info(entry)
         c.execute('INSERT INTO users(usernames, category, text, location, timestamp) VALUES (%s, %s, %s, %s, %s)', entry)
         conn.commit()
