@@ -11,6 +11,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
 r = redis.from_url(os.environ.get("REDIS_URL"))
 
 CATEGORY, LOCATION, TEXT = range(3)
@@ -25,7 +26,6 @@ def start(bot, update):
 
 
 def category(bot, update):
-    #user = update.message.from_user
     r.set('category', update.message.text)
     update.message.reply_text(f'So category is {update.message.text}, now please select location:',
                               reply_markup={'keyboard': get_locations(), 'resize_keyboard': True,
@@ -35,7 +35,6 @@ def category(bot, update):
 
 def location(bot, update):
     r.set('location', update.message.text)
-    #user = update.message.from_user
     update.message.reply_text(f'So location is {update.message.text}, now you can send me some notes!',
                               reply_markup=ReplyKeyboardRemove())
     return TEXT
@@ -43,14 +42,13 @@ def location(bot, update):
 
 def text(bot, update):
     r.set('text', update.message.text)
-    #user = update.message.from_user
-    update.message.reply_text('Thanks, I\'ll write it down!')
     save_to_db(r.get('username'), r.get('category'), r.get('text'), r.get('location'))
+    update.message.reply_text('Thanks, I\'ll write it down!')
+
     return TEXT
 
 
 def cancel(bot, update):
-    #user = update.message.from_user
     update.message.reply_text('Hope we talk again soon!',  reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
@@ -61,6 +59,7 @@ def save_to_db(username, category, text, location):
         conn = psycopg2.connect(get_db_url(), sslmode='require')
         c = conn.cursor()
         entry = (category, location, text, username)
+        logger.info(entry)
         c.execute('INSERT INTO users VALUES (%s, %s, %s, %s)', entry)
         conn.commit()
     finally:
@@ -80,12 +79,12 @@ def get_commands():
 
 
 def get_categories():
-    lst = [['Category 1', 'Category 2']]
+    lst = [['Category 1', 'Category 2', 'Category 3', 'Category 4']]
     return lst
 
 
 def get_locations():
-    lst = [['Almaty', 'Astana']]
+    lst = [['Almaty', 'Astana', 'Shymkent', 'Taldykorgan']]
     return lst
 
 
