@@ -1,1 +1,1 @@
-bot_folder
+Bot for Creative Code hackathon
